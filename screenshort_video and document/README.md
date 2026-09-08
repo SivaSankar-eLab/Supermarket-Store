@@ -34,13 +34,9 @@ This folder contains all visual documentation for the **SupermarketBot** project
 
 ## 🎬 Demo Video
 
-> **`video.mp4`** — *Full walkthrough demo (197 MB)*
->
-> ⚠️ This file exceeds GitHub's 100 MB file size limit and is **not stored in this repository**.
->
-> **Access the demo video via:**
-> - Google Drive / external link *(contact the repository owner)*
-> - Or run the project locally and record your own walkthrough
+| File | Size | Description |
+|:---|:---|:---|
+| `video.mp4` | 22.6 MB | Full end-to-end walkthrough demo recording showing inventory queries, multi-turn billing, GST auto-calculation, and voice/image recognition |
 
 ---
 
@@ -49,4 +45,4 @@ This folder contains all visual documentation for the **SupermarketBot** project
 1. **Screenshots**: View directly on GitHub by clicking any `.png` file
 2. **PDF Invoices**: Download and open with any PDF viewer
 3. **PPTX Deck**: Download and open with Microsoft PowerPoint or Google Slides
-4. **Demo Video**: Contact repository owner for access link
+4. **Demo Video**: Click [`video.mp4`](video.mp4) to view or download directly from GitHub

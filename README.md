@@ -133,13 +133,10 @@ All visual documentation, sample outputs, and the demo video are stored in [`scr
 
 ### 🎬 Demo Video
 
-> **`video.mp4`** — *Full walkthrough demo recording (197 MB)*
->
-> ⚠️ This file exceeds GitHub's 100 MB file size limit and is **not stored** in this repository.
->
-> **To access the demo video:**
-> - Contact the repository owner [@SivaSankar-eLab](https://github.com/SivaSankar-eLab) for an access link
-> - Or run the project locally and record your own walkthrough using the [Demo Walkthrough](#-14-demo-walkthrough) guide
+| File | Size | Link / Description |
+|:---|:---|:---|
+| `video.mp4` | 22.6 MB | 🎬 [**Watch Demo Video**](./screenshort_video%20and%20document/video.mp4) — Full end-to-end walkthrough recording showing inventory queries, multi-turn billing, GST auto-calculation, and voice/image recognition |
+
 
 ---
 
