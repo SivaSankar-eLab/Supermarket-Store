@@ -42,8 +42,7 @@
 14. [Demo Walkthrough](#-14-demo-walkthrough)
 15. [Commit History & Progression](#-15-commit-history--progression)
 16. [FAQ](#-16-faq)
-17. [Collaborators](#-17-collaborators)
-18. [License](#-18-license)
+17. [License](#-17-license)
 
 ---
 
@@ -737,26 +736,15 @@ cfef93f  feat: multi-provider agent harness with 31 tools across 6 skill domains
 **Q: Why PostgreSQL and not SQLite?**
 > `SELECT ... FOR UPDATE` row-level locking (which prevents overselling) requires a full RDBMS. SQLite doesn't support this. PostgreSQL 16 is also production-grade and supports `pg_trgm` for fuzzy search.
 
-**Q: How do I handle the 197 MB demo video?**
-> The video exceeds GitHub's 100 MB limit and is excluded from the repo via `.gitignore`. Contact the repository owner for an external link, or run the project locally and record your own walkthrough.
+**Q: Where is the demo video?**
+> The demo video (`video.mp4`) is included in [`screenshort_video and document/`](./screenshort_video%20and%20document/) and can be viewed directly from the repository.
 
 **Q: How do I set up a public webhook URL for production?**
 > Use `ngrok` for local testing (`ngrok http 8000`) or deploy to any cloud (Railway, Render, GCP, AWS). Set `WEBHOOK_URL` in `.env` to your public HTTPS URL.
 
 ---
 
-## 👥 17. Collaborators
-
-| GitHub Handle | Role |
-|:---|:---|
-| [@SivaSankar-eLab](https://github.com/SivaSankar-eLab) | Project Lead & Primary Developer |
-| [@Aswath363](https://github.com/Aswath363) | Collaborator |
-| [@akshaiP](https://github.com/akshaiP) | Collaborator |
-| [@ashwanthnebula](https://github.com/ashwanthnebula) | Collaborator |
-
----
-
-## 📜 18. License
+## 📜 17. License
 
 This project is **private and proprietary**. All rights reserved © 2026 SivaSankar-eLab.
 

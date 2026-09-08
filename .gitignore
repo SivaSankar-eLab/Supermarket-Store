@@ -78,10 +78,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# ── Large Media Files (use external storage / Google Drive) ───────────────────
-# video.mp4 is 197 MB — exceeds GitHub's 100 MB file limit
-"screenshort_video and document/video.mp4"
-screenshort_video*/video.mp4
+# ── Large Media Files ────────────────────────────────────────────────────────
+# Note: video.mp4 is tracked if under GitHub's 100 MB limit
+# If it exceeds 100 MB, add back: screenshort_video*/video.mp4
 
 # ── Skills / Agent cache ──────────────────────────────────────────────────────
 skills/**/__pycache__/
