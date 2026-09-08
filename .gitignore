@@ -1,0 +1,86 @@
+# ==============================================================================
+# Supermarket Operations Agent — Git Ignore Rules
+# ==============================================================================
+
+# ── Environment & Secrets ────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+!*.env.example
+pgpass.txt
+*.pem
+*.key
+*.cert
+*.pfx
+
+# ── Local Database & Runtime Binaries ─────────────────────────────────────────
+pgdata/
+pgsql/
+*.zip
+*.tar.gz
+*.db
+*.sqlite3
+postgres.log*
+*.log
+*.log.*
+*.bak
+
+# ── Python Cache & Virtual Environments ───────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Testing & Coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+htmlcov/
+.hypothesis/
+
+# ── Build & Distribution ──────────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+.eggs/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+
+# ── Generated Runtime Documents & Uploads ─────────────────────────────────────
+docs_output/*
+!docs_output/.gitkeep
+!docs_output/scans/
+docs_output/scans/*
+!docs_output/scans/.gitkeep
+
+# ── IDEs & Operating System Artifacts ─────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── Large Media Files (use external storage / Google Drive) ───────────────────
+# video.mp4 is 197 MB — exceeds GitHub's 100 MB file limit
+"screenshort_video and document/video.mp4"
+screenshort_video*/video.mp4
+
+# ── Skills / Agent cache ──────────────────────────────────────────────────────
+skills/**/__pycache__/

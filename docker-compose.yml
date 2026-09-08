@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kiranadb
+      POSTGRES_USER: kirana
+      POSTGRES_PASSWORD: kirana_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_extensions.sql:/docker-entrypoint-initdb.d/01_extensions.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kirana -d kiranadb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://kirana:kirana_pass@postgres:5432/kiranadb
+      DATABASE_URL_SYNC: postgresql://kirana:kirana_pass@postgres:5432/kiranadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - docs_output:/tmp/kirana_docs
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m app.main"
+
+volumes:
+  postgres_data:
+  docs_output:

@@ -1,0 +1,49 @@
+# KiranaBot — Python Dependencies
+
+# Claude Agent SDK
+anthropic>=0.40.0
+claude-agent-sdk>=0.1.0
+
+# Google Gemini SDK
+google-generativeai>=0.8.0
+
+# Web framework (FastAPI for webhook)
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+httpx>=0.27.0
+
+# Telegram
+python-telegram-bot>=21.6
+
+# Database
+sqlalchemy>=2.0.36
+alembic>=1.13.3
+psycopg2-binary>=2.9.10
+asyncpg>=0.30.0
+
+# Document generation
+jinja2>=3.1.4
+weasyprint>=62.3
+python-pptx>=1.0.2
+matplotlib>=3.9.2
+Pillow>=11.0.0
+
+# Utilities
+python-dotenv>=1.0.1
+pydantic>=2.9.2
+pydantic-settings>=2.6.0
+python-dateutil>=2.9.0
+pytz>=2024.2
+
+# Fuzzy matching (Postgres pg_trgm via Python fallback for tests)
+rapidfuzz>=3.10.0
+
+# PDF / reporting
+reportlab>=4.2.5
+
+# Testing
+pytest>=8.3.3
+pytest-asyncio>=0.24.0
+pytest-cov>=5.0.0
+anyio>=4.6.2
+factory-boy>=3.3.1
