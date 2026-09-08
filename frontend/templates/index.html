@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ shop_name }} — Supermarket Operations Dashboard</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260908" />
+
+  <style>
+    /* Critical UI styling for search boxes and feather icons */
+    svg.feather, i.feather {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      vertical-align: middle;
+    }
+    .search-box {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      box-sizing: border-box !important;
+    }
+    .search-box svg,
+    .search-box i,
+    .search-box .feather {
+      position: absolute !important;
+      left: 0.75rem !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      color: var(--text-dim) !important;
+      width: 15px !important;
+      height: 15px !important;
+      pointer-events: none !important;
+      margin: 0 !important;
+      z-index: 2 !important;
+    }
+    .search-box input {
+      width: 100% !important;
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 8px !important;
+      padding: 0 0.85rem 0 2.25rem !important;
+      color: var(--text-main) !important;
+      font-size: 0.82rem !important;
+      font-family: inherit !important;
+      box-sizing: border-box !important;
+      outline: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-icon">🏪</div>
+      <div class="brand-text">
+        <h1 id="shopName">{{ shop_name }}</h1>
+        <div class="badge-row">
+          <span class="badge badge-live"><span class="pulse"></span> LIVE STORE</span>
+          <span class="badge badge-ai" id="aiBadge">AI: {{ ai_provider | upper }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="live-clock" id="liveClock">--:--:--</div>
+      <button class="btn btn-primary" onclick="switchTab('vision', document.getElementById('tabBtnVision'))" style="background:linear-gradient(135deg,#818CF8,#6366F1);border:none;">
+        <i data-feather="camera"></i> Scan / Photo
+      </button>
+      <button class="btn btn-secondary" onclick="refreshDashboard()" id="refreshBtn">
+        <i data-feather="refresh-cw"></i> Refresh
+      </button>
+      <a href="/api/dashboard/export-deck?period=week" class="btn btn-primary" id="downloadPptxBtn" target="_blank">
+        <i data-feather="pie-chart"></i> Export PPTX Deck
+      </a>
+      <a href="/docs" class="btn btn-secondary" target="_blank">
+        <i data-feather="terminal"></i> API
+      </a>
+    </div>
+  </header>
+
+  <!-- Tab Navigation Bar -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('overview', this)">
+      <i data-feather="grid"></i> Overview
+    </button>
+    <button class="tab-btn" id="tabBtnVision" onclick="switchTab('vision', this)">
+      <i data-feather="camera"></i> Multimodal Scanner
+    </button>
+    <button class="tab-btn" onclick="switchTab('inventory', this)">
+      <i data-feather="box"></i> Catalog & Stock
+    </button>
+    <button class="tab-btn" onclick="switchTab('invoices', this)">
+      <i data-feather="file-text"></i> Finalized Invoices
+    </button>
+    <button class="tab-btn" onclick="switchTab('credit', this)">
+      <i data-feather="book-open"></i> Customer Credit & Accounts
+    </button>
+  </div>
+
+  <!-- Main Container -->
+  <main>
+    <div class="toolbar">
+      <div></div>
+      <div class="period-selector">
+        <button class="period-btn" onclick="setPeriod('today', this)">Today</button>
+        <button class="period-btn active" onclick="setPeriod('week', this)">This Week</button>
+        <button class="period-btn" onclick="setPeriod('month', this)">This Month</button>
+        <button class="period-btn" onclick="setPeriod('year', this)">This Year</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW & ANALYTICS -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--card-accent: var(--accent-coral);">
+          <div class="kpi-header">
+            <span class="kpi-title">Gross Revenue</span>
+            <div class="kpi-icon-wrap"><i data-feather="dollar-sign"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiRevenue">₹0.00</div>
+          <div class="kpi-subtitle" id="kpiAvgDaily">Daily avg: ₹0.00</div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-teal);">
+          <div class="kpi-header">
+            <span class="kpi-title">Finalized Bills</span>
+            <div class="kpi-icon-wrap"><i data-feather="shopping-bag"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiBills">0</div>
+          <div class="kpi-subtitle" id="kpiAvgBill">Avg basket: ₹0.00</div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-saffron);">
+          <div class="kpi-header">
+            <span class="kpi-title">GST Tax Collected</span>
+            <div class="kpi-icon-wrap"><i data-feather="percent"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiGst">₹0.00</div>
+          <div class="kpi-subtitle">CGST + SGST statutory tax</div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-purple);">
+          <div class="kpi-header">
+            <span class="kpi-title">Customer Credit Balance</span>
+            <div class="kpi-icon-wrap"><i data-feather="users"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiCredit">₹0.00</div>
+          <div class="kpi-subtitle" id="kpiCreditCount">0 accounts with dues</div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-blue);">
+          <div class="kpi-header">
+            <span class="kpi-title">Active SKUs</span>
+            <div class="kpi-icon-wrap"><i data-feather="layers"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiSkus">0</div>
+          <div class="kpi-subtitle" id="kpiStockAlerts">0 low stock alerts</div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1: Daily Revenue Trend & Payment Channels -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="trending-up" style="color:var(--accent-coral)"></i> Daily Sales Velocity</div>
+            <span class="badge badge-ai" id="trendPeriodBadge">THIS WEEK</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="pie-chart" style="color:var(--accent-blue)"></i> Payment Mix</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="paymentChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2: Top Products & GST Slabs -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="award" style="color:var(--accent-teal)"></i> Top Performing Products</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="topProductsChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="shield" style="color:var(--accent-saffron)"></i> GST by Tax Slab</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="gstSlabChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- PPTX & Export Action Banner -->
+      <div class="table-card" style="background:linear-gradient(135deg,rgba(79,70,229,0.15),rgba(30,41,59,0.5));border:1px solid rgba(129,140,248,0.3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h3 style="font-size:1.1rem;font-weight:700;">📊 Executive PowerPoint Presentation Deck</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">Generate 16:9 widescreen 7-slide deck analyzing sales, top items, stock health, and GST compliance with 300 DPI charts.</p>
+        </div>
+        <a href="/api/dashboard/export-deck?period=week" class="btn btn-primary" id="ctaExportBtn" target="_blank">
+          <i data-feather="download"></i> Download Presentation (.PPTX)
+        </a>
+      </div>
+    </div>
+
+    <!-- TAB 2: INVENTORY & STOCK HEALTH -->
+    <div id="tab-inventory" class="tab-content">
+      <div class="table-card">
+        <div class="chart-header" style="flex-wrap:wrap; gap:1rem;">
+          <div class="chart-title"><i data-feather="box" style="color:var(--accent-blue)"></i> Product Catalog & Stock Status</div>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <select id="slabFilter" onchange="loadInventory()" style="background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.45rem 0.75rem;border-radius:8px;font-family:inherit;font-size:0.82rem;height:36px;box-sizing:border-box;">
+              <option value="ALL">All GST Slabs</option>
+              <option value="0">0% Slab (Essential)</option>
+              <option value="5">5% Slab</option>
+              <option value="12">12% Slab</option>
+              <option value="18">18% Slab</option>
+              <option value="28">28% Slab</option>
+            </select>
+            <label style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.82rem; color:var(--text-muted); cursor:pointer; user-select:none; white-space:nowrap; height:36px;">
+              <input type="checkbox" id="lowStockOnlyCheck" onchange="loadInventory()" style="accent-color:var(--accent-blue); cursor:pointer;" /> Show Low Stock Only
+            </label>
+            <div class="search-box" style="position:relative;display:inline-flex;align-items:center;width:260px;height:36px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-dim);pointer-events:none;z-index:2;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="inventorySearch" placeholder="Search product or brand..." oninput="debounceInventory()" style="width:100%;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0 0.85rem 0 2.25rem;color:var(--text-main);font-size:0.82rem;font-family:inherit;box-sizing:border-box;outline:none;" />
+            </div>
+            <button class="btn btn-primary" onclick="openAddProductModal()" style="padding:0.45rem 0.85rem;font-size:0.82rem;height:36px;box-sizing:border-box;">
+              <i data-feather="plus"></i> Add Product
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="inventoryTable">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Brand</th>
+                <th>Unit</th>
+                <th>Selling Price</th>
+                <th>Cost Price</th>
+                <th>Stock On-Hand</th>
+                <th>Reorder Level</th>
+                <th>GST Slab</th>
+                <th>Stock Status</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <tr><td colspan="9" style="text-align:center;padding:2rem;"><div class="spinner"></div> Loading inventory...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: FINALIZED INVOICES -->
+    <div id="tab-invoices" class="tab-content">
+      <div class="table-card">
+        <div class="chart-header">
+          <div class="chart-title"><i data-feather="file-text" style="color:var(--accent-teal)"></i> Settled & Finalized Tax Invoices</div>
+          <span class="badge badge-live">STATUTORY GST COMPLIANT</span>
+        </div>
+
+        <div class="table-container">
+          <table id="billsTable">
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Date & Time</th>
+                <th>Customer</th>
+                <th>Payment Mode</th>
+                <th>Line Items</th>
+                <th>Subtotal (₹)</th>
+                <th>GST Total (₹)</th>
+                <th>Grand Total (₹)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="billsTableBody">
+              <tr><td colspan="9" style="text-align:center;padding:2rem;"><div class="spinner"></div> Loading bills...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CUSTOMER CREDIT & ACCOUNTS LEDGER -->
+    <div id="tab-credit" class="tab-content">
+      <div class="table-card">
+        <div class="chart-header">
+          <div class="chart-title"><i data-feather="book-open" style="color:var(--accent-purple)"></i> Customer Credit & Accounts Ledger</div>
+          <div class="kpi-value" id="creditHeaderTotal" style="font-size:1.2rem; color:var(--accent-coral)">Total Dues: ₹0.00</div>
+        </div>
+
+        <div class="table-container">
+          <table id="creditTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer Name</th>
+                <th>Phone Number</th>
+                <th>Outstanding Balance</th>
+                <th>Ledger Actions</th>
+              </tr>
+            </thead>
+            <tbody id="creditTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:2rem;"><div class="spinner"></div> Loading customer credit ledger...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: VISION & BARCODE SCAN -->
+    <div id="tab-vision" class="tab-content">
+      <div class="scanner-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="camera" style="color:var(--accent-purple)"></i> Multimodal Product Scanner</div>
+            <span class="badge badge-ai">GEMINI / CLAUDE VISION</span>
+          </div>
+
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">
+            Upload grocery packaging photos or scan barcodes. The vision model extracts brand, name, MRP, GST slab, and cross-references your database.
+          </p>
+
+          <div id="dropZone" class="dropzone" onclick="document.getElementById('visionFileInput').click()">
+            <div class="dropzone-icon"><i data-feather="upload-cloud" style="width:28px;height:28px;"></i></div>
+            <div style="font-weight:700;color:var(--text-main);margin-bottom:0.25rem;">Drop product photo here, or <span style="color:var(--accent-blue);text-decoration:underline;">browse</span></div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">Supports JPG, PNG, WEBP packaging images</div>
+            <input type="file" id="visionFileInput" accept="image/*" style="display:none;" onchange="handleImageSelected(event)" />
+          </div>
+
+          <div id="previewContainer" style="display:none;position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);max-height:220px;text-align:center;background:#000;margin-bottom:1rem;">
+            <img id="imagePreview" src="" style="max-height:220px;max-width:100%;object-fit:contain;" />
+            <button onclick="clearImagePreview()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:0.75rem;margin:1rem 0;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">OR DIRECT BARCODE SCAN</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+          </div>
+
+          <div class="search-box" style="position:relative;display:inline-flex;align-items:center;width:100%;margin-bottom:1rem;height:42px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-dim);pointer-events:none;z-index:2;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <input type="text" id="barcodeInput" placeholder="Enter barcode / EAN-13 (e.g. 8901030382012)..." onkeydown="if(event.key==='Enter') runScan()" style="width:100%;height:42px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0 0.85rem 0 2.5rem;color:var(--text-main);font-size:0.85rem;font-family:inherit;box-sizing:border-box;outline:none;" />
+          </div>
+
+          <button id="scanSubmitBtn" class="btn btn-primary" onclick="runScan()" style="width:100%;justify-content:center;padding:0.75rem;font-size:0.95rem;">
+            <i data-feather="zap"></i> Identify Product & Match Catalog
+          </button>
+        </div>
+
+        <div class="chart-card" id="scanResultsCard">
+          <div class="chart-header">
+            <div class="chart-title"><i data-feather="check-circle" style="color:var(--accent-teal)"></i> AI Recognition & Catalog Status</div>
+            <span id="scanStatusBadge" class="badge" style="display:none;">READY</span>
+          </div>
+
+          <div id="scanPlaceholder" style="text-align:center;padding:4.5rem 1.5rem;color:var(--text-muted);">
+            <div style="font-size:3rem;margin-bottom:0.75rem;opacity:0.4;">🏷️</div>
+            <div style="font-weight:600;font-size:1rem;color:var(--text-main);margin-bottom:0.25rem;">No Product Scanned Yet</div>
+            <div style="font-size:0.82rem;">Upload a photo or enter a barcode on the left to see live AI recognition.</div>
+          </div>
+
+          <div id="scanLoading" style="display:none;text-align:center;padding:4.5rem 1.5rem;">
+            <div class="spinner" style="width:36px;height:36px;margin:0 auto 1rem;"></div>
+            <div style="font-weight:700;font-size:1.05rem;color:var(--text-main);">Analyzing with AI Vision...</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.25rem;">Reading label text, brand, MRP, barcodes, and searching catalog...</div>
+          </div>
+
+          <div id="scanContent" style="display:none;flex-direction:column;gap:1.25rem;">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Customer Statement Modal -->
+  <div class="modal-backdrop" id="statementModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--accent-purple);text-transform:uppercase;">CUSTOMER LEDGER STATEMENT</div>
+          <h3 id="modalCustomerName" style="color:#fff;font-size:1.2rem;margin-top:2px;">Customer Statement</h3>
+        </div>
+        <button onclick="closeStatementModal()" style="background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" id="modalStatementBody">
+        <div style="text-align:center;padding:2rem;"><div class="spinner"></div> Loading statement...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <div class="modal-backdrop" id="addProductModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.15rem;">➕ Add New Product to Catalog</h3>
+        <button onclick="closeAddProductModal()" style="background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Product Name *</label>
+            <input id="modalAddName" type="text" placeholder="e.g. Whole Wheat Flour (5kg)" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Brand</label>
+            <input id="modalAddBrand" type="text" placeholder="e.g. Aashirvaad" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Unit</label>
+            <input id="modalAddUnit" type="text" value="kg" placeholder="kg, pkt, l, g..." style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">GST Slab (%)</label>
+            <select id="modalAddGst" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;">
+              <option value="0">0% (Nil / Essential)</option>
+              <option value="5" selected>5% (Groceries & Essentials)</option>
+              <option value="12">12% (Standard)</option>
+              <option value="18">18% (Personal Care)</option>
+              <option value="28">28% (Luxury)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Selling Price (₹) *</label>
+            <input id="modalAddSell" type="number" step="0.5" placeholder="e.g. 55" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Cost Price (₹)</label>
+            <input id="modalAddCost" type="number" step="0.5" placeholder="e.g. 45" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Opening Stock</label>
+            <input id="modalAddQty" type="number" value="20" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Reorder Level</label>
+            <input id="modalAddReorder" type="number" value="5" style="width:100%;background:var(--surface);border:1px solid var(--border);color:#fff;padding:0.5rem;border-radius:8px;margin-top:0.2rem;font-family:inherit;font-size:0.85rem;" />
+          </div>
+        </div>
+        <button id="modalAddSubmitBtn" class="btn btn-primary" onclick="submitModalAddProduct()" style="width:100%;justify-content:center;margin-top:1.25rem;">
+          Save to Inventory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" style="position:fixed;bottom:24px;right:24px;background:#1E293B;border:1px solid var(--accent-teal);color:#F8FAFC;padding:0.75rem 1.25rem;border-radius:10px;font-size:0.85rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:300;display:none;align-items:center;gap:0.6rem;">
+    <i data-feather="check-circle" style="color:var(--accent-teal);"></i> <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- External Script -->
+  <script src="/static/js/dashboard.js?v=20260908"></script>
+</body>
+</html>

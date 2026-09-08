@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice #{{ bill_id }} — {{ shop.name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 11px;
+      color: #111827;
+      background: #ffffff;
+      padding: 40px;
+      line-height: 1.4;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ─── Top Header ─────────────────────────────────────────────────────── */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .top-meta {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 32px;
+    }
+
+    .top-title {
+      font-size: 34px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand-logo-svg {
+      width: 72px;
+      height: 56px;
+    }
+
+    /* ─── Billed To / From Grid ─────────────────────────────────────────── */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .meta-col {
+      display: flex;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .meta-label {
+      width: 90px;
+      font-weight: 700;
+      color: #111827;
+      flex-shrink: 0;
+    }
+
+    .meta-value {
+      color: #4b5563;
+    }
+
+    .meta-value strong {
+      color: #111827;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ─── Items Table ───────────────────────────────────────────────────── */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+    }
+
+    .items-table thead tr {
+      border-top: 1.5px solid #111827;
+      border-bottom: 1.5px solid #111827;
+    }
+
+    .items-table thead th {
+      padding: 10px 4px;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .items-table thead th:first-child {
+      text-align: left;
+    }
+
+    .items-table thead th:nth-child(2) {
+      text-align: center;
+    }
+
+    .items-table tbody tr {
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .items-table tbody td {
+      padding: 10px 4px;
+      text-align: right;
+      color: #374151;
+      font-size: 11px;
+    }
+
+    .items-table tbody td:first-child {
+      text-align: left;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .items-table tbody td:nth-child(2) {
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .items-table tbody td.total-cell {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    /* ─── Summary Section ───────────────────────────────────────────────── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 32px;
+      margin-bottom: 36px;
+      align-items: start;
+    }
+
+    .summary-left .section-block {
+      margin-bottom: 14px;
+    }
+
+    .summary-left .block-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .summary-left .block-text {
+      font-size: 10.5px;
+      color: #4b5563;
+    }
+
+    .gst-mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 9.5px;
+    }
+
+    .gst-mini-table thead tr {
+      border-top: 1px solid #9ca3af;
+      border-bottom: 1px solid #9ca3af;
+    }
+
+    .gst-mini-table th {
+      padding: 4px 2px;
+      text-align: right;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .gst-mini-table th:first-child { text-align: left; }
+
+    .gst-mini-table td {
+      padding: 4px 2px;
+      text-align: right;
+      color: #374151;
+    }
+
+    .gst-mini-table td:first-child { text-align: left; }
+
+    .totals-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .totals-table td {
+      padding: 5px 0;
+      text-align: right;
+      font-size: 11.5px;
+      color: #4b5563;
+    }
+
+    .totals-table td:first-child {
+      padding-right: 24px;
+    }
+
+    .totals-table td:last-child {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .totals-table tr.total-row td {
+      border-bottom: 3px solid #111827;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    /* ─── Bottom Banner ─────────────────────────────────────────────────── */
+    .bottom-banner {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .banner-left .banner-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 3px;
+    }
+
+    .banner-left .banner-text {
+      font-size: 9.5px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .banner-right {
+      text-align: right;
+    }
+
+    .banner-right .site-name {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .banner-right .site-info {
+      font-size: 9.5px;
+      color: #6b7280;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div>
+      <div class="top-meta">
+        <span>Number: #{{ bill_id }}</span>
+        <span>Date: {{ bill_date }}</span>
+      </div>
+      <div class="top-title">Invoice</div>
+    </div>
+    <div>
+      <svg class="brand-logo-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="24" y="8" width="48" height="36" rx="7" stroke="#111827" stroke-width="2.4" fill="none" />
+        <polyline points="64,44 70,50 60,44" stroke="#111827" stroke-width="2.4" fill="none" stroke-linejoin="round" />
+        <rect x="8" y="16" width="48" height="36" rx="7" stroke="#111827" stroke-width="2.4" fill="#ffffff" />
+        <polyline points="14,52 8,58 22,52" stroke="#111827" stroke-width="2.4" fill="#ffffff" stroke-linejoin="round" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Billed to / Billed from -->
+  <div class="meta-grid">
+    <div class="meta-col">
+      <div class="meta-label">Billed to</div>
+      <div class="meta-value">
+        <strong>{{ customer.name if customer else 'Walk-in Retail Customer' }}</strong>
+        {% if customer and customer.phone %}
+        {{ customer.phone }}<br/>
+        {% else %}
+        Counter Sale / Cash<br/>
+        {% endif %}
+        Place of Supply: State Supply (07)
+        {% if customer and customer.current_balance %}
+        <br/>Credit Balance: Rs. {{ "%.2f"|format(customer.current_balance) }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="meta-label">Billed from</div>
+      <div class="meta-value">
+        <strong>{{ shop.name }}</strong>
+        {% if shop.owner %}Proprietor: {{ shop.owner }}<br/>{% endif %}
+        {% if shop.address %}{{ shop.address }}<br/>{% endif %}
+        {% if shop.gstin and shop.gstin != 'N/A' %}GSTIN: {{ shop.gstin }}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Line Items Table -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>Item Description</th>
+        <th>HSN</th>
+        <th>Amount</th>
+        <th>Rate</th>
+        <th>Taxable</th>
+        <th>GST%</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.hsn }}</td>
+        <td>{{ item.qty }} {{ item.unit }}</td>
+        <td>Rs. {{ "%.2f"|format(item.rate) }}</td>
+        <td>Rs. {{ "%.2f"|format(item.taxable) }}</td>
+        <td>{{ item.gst_slab }}%</td>
+        <td class="total-cell">Rs. {{ "%.2f"|format(item.total) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Summary Section -->
+  <div class="summary-grid">
+    <div class="summary-left">
+      {% if amount_words %}
+      <div class="section-block">
+        <div class="block-title">Amount due</div>
+        <div class="block-text">{{ amount_words }}</div>
+      </div>
+      {% endif %}
+
+      <div class="section-block">
+        <div class="block-title">Payment method</div>
+        <div class="block-text">PAID · {{ payment_mode }}{% if payment_ref %} ({{ payment_ref }}){% endif %}</div>
+      </div>
+
+      {% if gst_slabs %}
+      <table class="gst-mini-table">
+        <thead>
+          <tr>
+            <th>GST Slab</th>
+            <th>Taxable</th>
+            <th>CGST</th>
+            <th>SGST</th>
+            <th>Total Tax</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for slab in gst_slabs %}
+          <tr>
+            <td>{{ slab.slab }}%</td>
+            <td>Rs. {{ "%.2f"|format(slab.taxable) }}</td>
+            <td>Rs. {{ "%.2f"|format(slab.cgst) }}</td>
+            <td>Rs. {{ "%.2f"|format(slab.sgst) }}</td>
+            <td style="font-weight:700; color:#111827;">Rs. {{ "%.2f"|format(slab.total) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+
+    <div class="summary-right">
+      <table class="totals-table">
+        <tr>
+          <td>Subtotal</td>
+          <td>Rs. {{ "%.2f"|format(subtotal) }}</td>
+        </tr>
+        <tr>
+          <td>Taxes (CGST)</td>
+          <td>Rs. {{ "%.2f"|format(cgst_total) }}</td>
+        </tr>
+        <tr>
+          <td>Taxes (SGST)</td>
+          <td>Rs. {{ "%.2f"|format(sgst_total) }}</td>
+        </tr>
+        {% if round_off != 0 %}
+        <tr>
+          <td>Round Off Adjustment</td>
+          <td>{% if round_off > 0 %}+{% endif %}Rs. {{ "%.2f"|format(round_off) }}</td>
+        </tr>
+        {% endif %}
+        <tr class="total-row">
+          <td>Total</td>
+          <td>Rs. {{ "%.2f"|format(grand_total) }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bottom Grey Banner -->
+  <div class="bottom-banner">
+    <div class="banner-left">
+      <div class="banner-title">Payment information & Terms</div>
+      <div class="banner-text">
+        1. Goods once sold will not be returned without the original cash receipt.<br/>
+        2. All disputes are subject to local jurisdiction only. Computer-generated tax invoice.
+      </div>
+    </div>
+    <div class="banner-right">
+      <div class="site-name">{{ shop.website or 'supermarketstore.in' }}</div>
+      <div class="site-info">
+        {{ shop.address.split(',')[0] if shop.address else 'Mumbai' }} · {{ shop.phone or '+91 98765 43210' }}<br/>
+        Powered by Supermarket ERP
+      </div>
+    </div>
+  </div>
+
+ </body>
+ </html>
