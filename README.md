@@ -97,7 +97,7 @@ Built as a **production-grade system**, not a demo or prototype, SupermarketBot 
     <td align="center"><img src="screenshort_video and document/10.png" width="360"/><br/><sub>📦 Stock Receive — Batch Tracking</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="2"><img src="screenshort_video and document/11.png" width="740"/><br/><sub>🏗️ Full Agent Architecture Diagram</sub></td>
+    <td align="center" colspan="2"><img src="screenshort_video and document/11.png" width="740"/><br/><sub>💬 Telegram Bot — Reorder Suggestions, FEFO Batch Expiry & Invoice PDF Output</sub></td>
   </tr>
 </table>
 
@@ -121,7 +121,8 @@ All visual documentation, sample outputs, and the demo video are stored in [`scr
 | [`8.png`](./screenshort_video%20and%20document/8.png) | PowerPoint Deck — Auto-generated analytics presentation with charts |
 | [`9.png`](./screenshort_video%20and%20document/9.png) | Low Stock Alert — Telegram notification with reorder quantity |
 | [`10.png`](./screenshort_video%20and%20document/10.png) | Stock Receive — Batch inventory delivery tracking with cost prices |
-| [`11.png`](./screenshort_video%20and%20document/11.png) | Full Architecture Diagram — Complete multi-provider agent flow |
+| [`11.png`](./screenshort_video%20and%20document/11.png) | Telegram Bot — Reorder suggestions, catalog adding & FEFO batch tracking |
+
 
 ### 📄 Sample Documents
 

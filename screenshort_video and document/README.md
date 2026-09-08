@@ -18,7 +18,7 @@ This folder contains all visual documentation for the **SupermarketBot** project
 | `8.png` | PowerPoint Analytics Deck Output |
 | `9.png` | Low Stock Alert in Telegram |
 | `10.png` | Stock Receive — Batch Tracking |
-| `11.png` | Full Architecture Diagram |
+| `11.png` | Telegram Bot — Reorder suggestions, catalog adding & FEFO batch tracking |
 
 ---
 
