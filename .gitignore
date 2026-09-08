@@ -13,6 +13,7 @@ pgpass.txt
 *.key
 *.cert
 *.pfx
+github_setup.ps1
 
 # ── Local Database & Runtime Binaries ─────────────────────────────────────────
 pgdata/
